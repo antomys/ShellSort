@@ -1,6 +1,8 @@
+import MinHeap.MinHeap;
+import MinHeap.MinHeapLexical;
+
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -9,41 +11,36 @@ import java.time.LocalDateTime;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-        long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
-        LocalDateTime now = LocalDateTime.now();
         String path = "/home/antomys/IdeaProjects/ShellSort/src/main/resources";
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+
         ShellSort shellSort = new ShellSort();
-        //System.out.println("File name: ");
-        //String fileName = new Scanner(System.in).nextLine();
-        shellSort.shellFiles(path, "input100000000.txt");
+        //shellSort.shellFiles(path, "testtest.txt");
+        shellSort.shellFilesLexical(path, "testtest.txt");
 
         File[] file = new File("src/main/resources/sorted").listFiles();
-        int K = file.length;
         Arrays.sort(file);
-        int L = (int) file[0].length();
         long start = System.nanoTime();
-        ArrayList<ArrayList<Integer>> inputArray = new ArrayList<>();
-        ArrayList<Integer> temp = new ArrayList<>();
+        //ArrayList<ArrayList<Integer>> inputArray = new ArrayList<>();
+        ArrayList<ArrayList<String>> inputArray = new ArrayList<>();
+        //ArrayList<Integer> temp = new ArrayList<>();
+        ArrayList<String> temp = new ArrayList<>();
+
         for (File file1 : file) {
             Scanner scanner = new Scanner(file1);
             while (scanner.hasNext())
-                temp.add(scanner.nextInt());
+                //temp.add(scanner.nextInt());
+                temp.add(scanner.next());
             inputArray.add(new ArrayList<>(temp));
             temp.clear();
         }
+        //MinHeap.merge(inputArray);
+        MinHeapLexical.merge(inputArray);
 
-
-        //ArrayList<Integer> resultArray = MinHeap.merge(inputArray);
-        MinHeap.merge(inputArray);
-        /*FileWriter fileWriter = new FileWriter("src/main/resources/output.txt", false);
-        for (Integer i : resultArray) {
-            fileWriter.write(i.toString()+'\n');
-        }
-        fileWriter.close();
-        resultArray.clear();*/
         long elapsedTime = (System.nanoTime() - start)/1000000;
-        cleartemp(path+"/sorted");
+        clearTemporary(path+"/sorted");
         long afterUsedMem=(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory())/(1024 * 1024);
         FileWriter tempfile = new FileWriter("src/main/resources/logging", true);
         tempfile.write("Current time: " + dtf.format(now) +
@@ -51,7 +48,7 @@ public class Main {
         tempfile.close();
     }
 
-    public static void cleartemp(String path) {
+    public static void clearTemporary(String path) {
         File inputFile = new File(path);
         for(File file: inputFile.listFiles()){
             file.delete();

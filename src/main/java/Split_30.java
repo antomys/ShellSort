@@ -64,7 +64,6 @@ public class Split_30 {
 
     private static void writePartToFile(long byteSize, long position, FileChannel sourceChannel, List<Path> partFiles) throws IOException {
         Path fileName = Paths.get(dir + UUID.randomUUID() + suffix);
-        //Path fileName = Paths.get(dir + UUID.randomUUID() + suffix);
         try (RandomAccessFile toFile = new RandomAccessFile(fileName.toFile(), "rw");
              FileChannel toChannel = toFile.getChannel()) {
             sourceChannel.position(position);
