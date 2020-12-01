@@ -1,80 +1,108 @@
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Scanner;
-import java.time.format.DateTimeFormatter;
-import java.time.LocalDateTime;
+import OldClasses.Split_30;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.util.*;
 
 public class ShellSort {
 
-    private static int getFileSizeMegaBytes(File file) {
-        return (int) file.length() / (1024 * 1024);
+    private ShellSort() { }
+
+     //Rearranges the array in ascending order, using the natural order.
+    public static void sort(Comparable[] a) {
+        int n = a.length;
+
+        // 3x+1 increment sequence:  1, 4, 13, 40, 121, 364, 1093, ...
+        int h = 1;
+        while (h < n/3) h = 3*h + 1;
+
+        while (h >= 1) {
+            // h-sort the array
+            for (int i = h; i < n; i++) {
+                for (int j = i; j >= h && less(a[j], a[j-h]); j -= h) {
+                    exch(a, j, j-h);
+                }
+            }
+            assert isHsorted(a, h);
+            h /= 3;
+        }
+        assert isSorted(a);
     }
 
-    public void shellFiles(String path, String fileName) throws IOException {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-        LocalDateTime now = LocalDateTime.now();
-        long start;
-        File inputFile = new File(path+"/"+fileName);
-        int mBperSplit = 1;
-        int filesize = getFileSizeMegaBytes(inputFile);
-        if(filesize >100) {
-            mBperSplit = 100;
-        } else if (filesize > 10) {
-            mBperSplit = 10;
+     //Helper sorting functions.
+
+    // is v < w ?
+    private static boolean less(Comparable v, Comparable w) {
+        return v.compareTo(w) < 0;
+    }
+
+    // exchange a[i] and a[j]
+    private static void exch(Object[] a, int i, int j) {
+        Object swap = a[i];
+        a[i] = a[j];
+        a[j] = swap;
+    }
+
+
+
+     //Check if array is sorted - useful for debugging.
+
+    private static boolean isSorted(Comparable[] a) {
+        for (int i = 1; i < a.length; i++)
+            if (less(a[i], a[i-1])) return false;
+        return true;
+    }
+
+    // is the array h-sorted?
+    private static boolean isHsorted(Comparable[] a, int h) {
+        for (int i = h; i < a.length; i++)
+            if (less(a[i], a[i-h])) return false;
+        return true;
+    }
+
+    // print array to standard output
+    private static void show(Comparable[] a) {
+        for (int i = 0; i < a.length; i++) {
+            System.out.println(a[i]);
         }
+    }
+
+    public static void ShellSortFiles(String path, String fileName) throws Exception {
         Split_30 split_30 = new Split_30(path+"/"+fileName);
-        split_30.splitFile(mBperSplit);
+        split_30.splitFile(1);
+
         FileWriter fileWriter;
         File outfile = new File(path+"/sorted");
         outfile.mkdir();
         File[] infile = new File(path+"/tmp").listFiles();
         Arrays.sort(infile);
-        int i = 0;
-        start = System.nanoTime();
-        for (File files: infile) {
-            Scanner scanner = new Scanner(files);
-            ArrayList<Integer> input = new ArrayList<Integer>();
-            while (scanner.hasNext()) {
-                input.add(scanner.nextInt());
+        int sortedFileIndex = 0;
+        for (File file: infile) {
+            Scanner scanner = new Scanner(file);
+            List<String> temps = new LinkedList<String>();
+            while(scanner.hasNext()) {
+                temps.add(scanner.next());
             }
+            String[] tempsArray = temps.toArray(new String[0]);
+            ShellSort.sort(tempsArray);
 
-            shellSort(input);
-            fileWriter = new FileWriter(path+"/sorted/"+ i +".splitPart",false);
-            for (Integer integer: input) {
-                fileWriter.write(integer.toString()+'\n');
+            fileWriter = new FileWriter(path+"/sorted/"+ sortedFileIndex +".splitPart",false);
+            for (String aString: tempsArray) {
+                fileWriter.write(aString+'\n');
             }
-            i++;
+            sortedFileIndex++;
             fileWriter.close();
-            input.clear();
+            temps.clear();
         }
-        long elapsedTime = (System.nanoTime() - start)/1000000;
-        split_30.clearTemp(path+ "/tmp");
-        FileWriter file = new FileWriter("src/main/resources/logging", true);
-        file.write("Current time: " + dtf.format(now) +
-                " Method: ShellSort " + "Time: "+ elapsedTime + " ms" + " File size:" +filesize+"\n");
-        file.close();
+
     }
-    private static ArrayList<Integer> shellSort(ArrayList<Integer> arr){
-        int interval = 1;
-        int temp;
-        // interval calculation using Knuth's interval sequence
-        while(interval <= arr.size()/3){
-            interval = (interval * 3) + 1;
-        }
-        while(interval > 0){
-            for(int i = interval; i < arr.size(); i++){
-                temp = arr.get(i);
-                int j;
-                for(j = i; j > interval - 1 && arr.get(j-interval) >= temp; j=j-interval){
-                    Collections.swap(arr,j,j-interval);
-                }
-                arr.set(j,temp);
-            }
-            // reduce interval
-            interval = (interval - 1)/3;
-        }
-        return arr;
+
+      //Reads in a sequence of strings from standard input; Shellsorts them;
+      //and prints them to standard output in ascending order.
+
+    public static void main(String[] args) throws Exception {
+        String path = "src/main/resources";
+        ShellSortFiles(path,"test.txt");
     }
+
 }

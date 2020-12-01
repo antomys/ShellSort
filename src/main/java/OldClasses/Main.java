@@ -1,3 +1,5 @@
+package OldClasses;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -9,7 +11,7 @@ import java.time.LocalDateTime;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+       /* DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
         LocalDateTime now = LocalDateTime.now();
         String path = "/home/antomys/IdeaProjects/ShellSort/src/main/resources";
@@ -37,7 +39,7 @@ public class Main {
         FileWriter tempfile = new FileWriter("src/main/resources/logging", true);
         tempfile.write("Current time: " + dtf.format(now) +
                 " Method: MergeFiles " + "Time: "+ elapsedTime + " ms" + " Memory Used: "+ afterUsedMem+ " mB "+"\n\n");
-        tempfile.close();
+        tempfile.close();*/
     }
 
     public static void cleartemp(String path) {
