@@ -14,8 +14,6 @@ public class Main {
         LocalDateTime now = LocalDateTime.now();
         String path = "/home/antomys/IdeaProjects/ShellSort/src/main/resources";
         ShellSort shellSort = new ShellSort();
-        //System.out.println("File name: ");
-        //String fileName = new Scanner(System.in).nextLine();
         shellSort.shellFiles(path, "input100000000.txt");
 
         File[] file = new File("src/main/resources/sorted").listFiles();
@@ -32,16 +30,7 @@ public class Main {
             inputArray.add(new ArrayList<>(temp));
             temp.clear();
         }
-
-
-        //ArrayList<Integer> resultArray = MinHeap.merge(inputArray);
         MinHeap.merge(inputArray);
-        /*FileWriter fileWriter = new FileWriter("src/main/resources/output.txt", false);
-        for (Integer i : resultArray) {
-            fileWriter.write(i.toString()+'\n');
-        }
-        fileWriter.close();
-        resultArray.clear();*/
         long elapsedTime = (System.nanoTime() - start)/1000000;
         cleartemp(path+"/sorted");
         long afterUsedMem=(Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory())/(1024 * 1024);

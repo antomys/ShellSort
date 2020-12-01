@@ -56,28 +56,6 @@ public class ShellSort {
                 " Method: ShellSort " + "Time: "+ elapsedTime + " ms" + " File size:" +filesize+"\n");
         file.close();
     }
-
-    private static int[] shellSort(int[] arr){
-        int interval = 1;
-        int temp;
-        // interval calculation using Knuth's interval sequence
-        while(interval <= arr.length/3){
-            interval = (interval * 3) + 1;
-        }
-        while(interval > 0){
-            for(int i = interval; i < arr.length; i++){
-                temp = arr[i];
-                int j;
-                for(j = i; j > interval - 1 && arr[j-interval] >= temp; j=j-interval){
-                    arr[j] = arr[j - interval];
-                }
-                arr[j] = temp;
-            }
-            // reduce interval
-            interval = (interval - 1)/3;
-        }
-        return arr;
-    }
     private static ArrayList<Integer> shellSort(ArrayList<Integer> arr){
         int interval = 1;
         int temp;
@@ -87,14 +65,11 @@ public class ShellSort {
         }
         while(interval > 0){
             for(int i = interval; i < arr.size(); i++){
-                //temp = arr[i];
                 temp = arr.get(i);
                 int j;
                 for(j = i; j > interval - 1 && arr.get(j-interval) >= temp; j=j-interval){
-                    //arr[j] = arr[j - interval];
                     Collections.swap(arr,j,j-interval);
                 }
-                //arr[j] = temp;
                 arr.set(j,temp);
             }
             // reduce interval

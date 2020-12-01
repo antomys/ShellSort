@@ -84,16 +84,10 @@ class MinHeap {
         }
 
         MinHeap minHeap = new MinHeap(heapNodes);
-        //int[] resultingArray = new int[resultingArraySize];
-        /*ArrayList<Integer> resultingArray = new ArrayList<>();
-        for (int i = 0; i < resultingArraySize; i++) {
-            resultingArray.add(0);
-        }*/
         try {
             FileWriter fileWriter = new FileWriter("src/main/resources/output.txt",false);
             for (int i = 0; i < resultingArraySize; i++) {
                 HeapNode root = minHeap.getRootNode();
-                //resultingArray.set(i, root.element);
                 int rootElement = root.element;
                 fileWriter.write(String.valueOf(rootElement) +'\n');
 
@@ -110,6 +104,5 @@ class MinHeap {
         catch (IOException e) {
             e.printStackTrace();
         }
-        //return resultingArray;
     }
 }
