@@ -3,75 +3,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.PriorityQueue;
 import java.util.Scanner;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
-/**
- * PMSS algorithm sorts input text file of strings using polyphase merge procedure with a help of two or more auxilary files.
- * In the first part it uses these files to distribute input data and then merges them in the second part.
- * <p>
- * Distribution of the input data is based on Fibonacci numbers sequence which is depending
- * on number of auxilary files that algorithm is working with. The algorithm uses internal
- * data structure <i>PriorityQueue</i> to store run elements. Priority queue is also used
- * to find a minimum element that will be first written to the output file.
- * The algorithm uses a class named <i>StringRecord</i> which represent a single line in
- * input file defined by two attributes: value itself and file index where value is stored in.
- * All elements of the priority queue are of type StringRecord.
- * <p>
- * Distribute procedure repeats until entire input data is distributed following Fibonacchi sequence numbers.
- * Merge procedure repeats until all the data is sorted in ascending order. The algorithm
- * produces a brand new output file which contains sorted data and thus retains input file unchanged.
- * <p>
- *
- * @throws IOException       if an input or output exception occurred during file operations.
- *
- */
 public class PMSS
 {
-    /** Amount of input data read by input file reader in distribute phase of the algorithm. */
     static long data_read = 0;
-
-    /** Variable used to store the first element of next run. Used only in writeNextStringRun() method. */
     static String next_run_element;
-
-    /** Index of current active output file where runs are being merged. */
     static int output_file_index;
-
-    /** Index of previous active output file (previous distribution level). */
     static int old_output_file_index;
-
-    /** Amount of runs on current distribution level. */
     static int runs_per_level;
-
-    /** Array used to store missing (dummy) runs for each input file after the distribute phase. */
     static int missing_runs[];
-
-    /** Array used to determine distribution of runs in input files. Each input file should
-     * contain exactly the same amount of runs as specified in this arrays indexes.
-     **/
     static int distribution_array[];
-
-    /** Array used as a semaphore for input file readers. If value on a certain index equals 1,
-     * input file reader is allowed to read from attached file. If value is 0, reading is not allowed.
-     **/
     static int allow_read[];
-
-    /** Array used to store all last elements of the current runs from each input file. */
     static String last_elements[];
 
-    /** Array used to store all last elements of the current runs from each input file. Used only in
-     * distribute phase of the algorithm.
-     **/
     static String run_last_elements[];
 
-    /** Array used to store all first elements of the next runs from each input file. */
     static StringRecord next_run_first_elements[];
-
-    /**
-     * OldClasses.Main data structure of the algorithm. It is used to extract next minimum string
-     * that needs to be written to output file. When q is empty on a certain distribution
-     * level, all runs on this level have merged to output file.
-     */
     static PriorityQueue<StringRecord> q = new PriorityQueue<StringRecord>();
 
 
@@ -81,10 +28,11 @@ public class PMSS
 
     public static void main(String args[]) throws Exception
     {
+        long beforeUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
         int temp_files = 24;
         String file_extension = ".splitPart";
         String working_dir = "src/main/resources/";
-        File main_file = new File(working_dir + "test.txt"); //TODO: CHANGE FILENAME AND DIRECTORY
+        File main_file = new File(working_dir + "20000000.txt"); //TODO: CHANGE FILENAME AND DIRECTORY
         File sorted_file = new File(working_dir + "/sorted.txt");
         BufferedReader main_file_reader = new BufferedReader(new FileReader(main_file));
         long main_file_length = main_file.length();
@@ -155,23 +103,13 @@ public class PMSS
 
         long end = System.currentTimeMillis();
         /* END - polyphase merge */
+        long afterUsedMem=Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory();
+        long actualMemUsed=afterUsedMem-beforeUsedMem;
 
         System.out.println("Merge phase done in " + (end-start) + " ms");
+        System.out.println("Memory used: "+actualMemUsed/(1024L * 1024L));
     }
 
-    /**
-     * Distributes contents of main input file to @temp_files temporary output files.
-     * Input data is distributed according to distribution_array which contains for
-     * every temporary file a predifined amount of runs that should reside in certain file
-     * on a certain distribution level. Calculation of array values is based on Fibonacci
-     * sequence numbers. When input data on a certain level is distributed, next level is calculated
-     * if and only if the input file is not consumed yet.
-     *
-     * @param temp_files       number of temporary files to work with.
-     * @param working_files    array of all working files. The size of this array equals @temp_files.
-     * @param main_file_length length of the main input file.
-     * @param main_file_reader reader used to read main input file.
-     */
     private static void distribute(int temp_files, File working_files[], long main_file_length, BufferedReader main_file_reader)
     {
         try
@@ -254,15 +192,6 @@ public class PMSS
         }
     }
 
-    /**
-     * Merges predefined amount of dummy runs from all input files to output file.
-     * Amount of dummy runs that can be merged is defined by @param min_dummy.
-     * Since there should be no special markers in input files, all the merging results
-     * as adequate substraction/addition in missing_runs array.
-     * Additionaly this method resets allow_read array once dummy run merge is over.
-     *
-     * @param min_dummy minimum amount of runs which is the same for all input files.
-     */
     private static void initMergeProcedure(int min_dummy)
     {
         try
@@ -283,15 +212,6 @@ public class PMSS
         }
     }
 
-    /**
-     * Merges @param min_file_values runs into a single run and writes it to output file bounded by @param writer.
-     * @param min_file_values is a minimum number of runs per current distribution level. Procedure merges @param min_file_values
-     * from all of the input files and terminates afterwards.
-     *
-     * @param min_file_values  number of runs that will be merged in a single execution of merge procedure.
-     * @param run_file_readers array of all input file readers.
-     * @param writer           writer for output file.
-     */
     private static void merge(int min_file_values, BufferedReader run_file_readers[], BufferedWriter writer)
     {
         String line;
@@ -351,9 +271,6 @@ public class PMSS
         }
     }
 
-    /**
-     * Updates current output_file_index which points to output file where runs are being merged to.
-     */
     private static void updateOutputFileIndex()
     {
         if(output_file_index > 0)
@@ -366,12 +283,6 @@ public class PMSS
         }
     }
 
-    /**
-     * Reads next value of each run into a priority queue. Reading is allowed if certain input file
-     * contains no dummy runs and reading from input file is allowed by allow_read array.
-     *
-     * @param run_file_readers array of all input file readers.
-     */
     private static void populateHeap(BufferedReader run_file_readers[])
     {
         try
@@ -400,13 +311,6 @@ public class PMSS
         }
     }
 
-    /**
-     * Reads next line of text from file bounded by @param file_reader.
-     *
-     * @param file_reader reader used to read from input file.
-     * @param file_index  index of a file from which @param file_reader reads the data.
-     * @return next line of text from file, null instead.
-     */
     private static String readFileLine(BufferedReader file_reader, int file_index)
     {
         try
@@ -437,11 +341,6 @@ public class PMSS
         return null;
     }
 
-    /**
-     * Resets allow_read array to its initial state. It additionally sets
-     * index of output_file_index to 0 and thus prevents read operations
-     * from output file.
-     */
     private static void resetAllowReadArray()
     {
         for(int i=0; i<allow_read.length; i++)
@@ -452,11 +351,6 @@ public class PMSS
         allow_read[output_file_index] = 0;
     }
 
-    /**
-     * Returns the minimum amount of dummy runs present amongst input files.
-     *
-     * @return the minimum amount of present runs.
-     */
     private static int getMinDummyValue()
     {
         int min = Integer.MAX_VALUE;
@@ -472,11 +366,6 @@ public class PMSS
         return min;
     }
 
-    /**
-     * Returns index of a file which according to distribution_array contains the minimum amount of runs.
-     *
-     * @return index of a file with minimum amount of runs.
-     */
     private static int getMinFileIndex()
     {
         int min_file_index = -1;
@@ -493,19 +382,6 @@ public class PMSS
         return min_file_index;
     }
 
-    /**
-     * Writes next string run to output file pointed by @param run_file_writer.
-     *
-     * @param main_file_length length of the main input file.
-     * @param main_file_reader reader used to read main input file.
-     * @param run_file_writer  writer used to write to a specific output file
-     * @param file_index       used to update missing_runs and run_last_elements arrays.
-     *                         In case when main input file is read to the end amount of
-     *                         dummy runs on this index in missing_runs array needs to be
-     *                         decreased. When run is ended run_last_elements array on
-     *                         this index is populated with the last element of the run.
-     *
-     */
     private static void writeNextStringRun(long main_file_length, BufferedReader main_file_reader, BufferedWriter run_file_writer, int file_index)
     {
         if(data_read >= main_file_length)
@@ -560,16 +436,6 @@ public class PMSS
         catch(Exception e){}
     }
 
-    /**
-     * Checks if two adjacent runs have merged into a single run. It does this by comparing the first element
-     * of the second run with the last element of the first run. If this two elements are in sorted order, the runs
-     * have merged.
-     *
-     * @param main_file_length length of the main input file.
-     * @param file_index       index in array from which last element of the first run is taken for comparison.
-     * @param first_element    first element of the second run to be taken into comparison.
-     * @return true if the runs have merged, false instead.
-     */
     private static boolean runsMerged(long main_file_length, int file_index, String first_element)
     {
         if(data_read < main_file_length && run_last_elements[file_index] != null && first_element != null)
@@ -595,10 +461,6 @@ public class PMSS
         }
     }
 
-    /**
-     * Calculates previous run distribution level. The new level is calculated following.
-     * Finonacchi sequence rule.
-     */
     private static void setPreviousRunDistributionLevel()
     {
         int diff;
@@ -630,11 +492,6 @@ public class PMSS
         }
     }
 
-    /**
-     * Closes all file readers used to read from run files in distribute phase of the algorithm.
-     *
-     * @param run_file_readers array of readers to read from run files.
-     */
     private static void closeReaders(BufferedReader run_file_readers[])
     {
         try
@@ -648,11 +505,6 @@ public class PMSS
         catch(Exception e){}
     }
 
-    /**
-     * Closes all file writers used to write to run files in distribute phase of the algorithm.
-     *
-     * @param run_file_writers array of writers to write to run files.
-     */
     private static void closeWriters(BufferedWriter run_file_writers[])
     {
         try
@@ -666,13 +518,6 @@ public class PMSS
         catch(Exception e){}
     }
 
-    /**
-     * Clears all unnecessary temporary files and renames the sorted one to its final name.
-     *
-     * @param working_dir path to working directory where entire sorting process is taking place.
-     * @param main_file main input file.
-     * @param temp_files number of temporary files to work with.
-     */
     private static void clearTempFiles(String working_dir, File main_file, File temp_files[])
     {
         File sorted_file = new File(working_dir+"sorted.txt");
